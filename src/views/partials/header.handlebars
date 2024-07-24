@@ -1,0 +1,18 @@
+<header>
+    <div class="header-container">
+        <h1>{{title}}</h1>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/products">Productos</a>
+            <a href="/realtimeproducts">Nuevo Producto</a>
+            <a href="/cart">Carrito</a>
+            {{#if user}}
+            <p>Bienvenido, {{user.name}}</p>
+            <a class="logout" href="/logout">Cerrar sesion</a>
+            {{else}}
+            <a class="log" href="/login">Iniciar sesion</a>
+            <a class="log" href="/register">Registrarse</a>
+            {{/if}}
+        </nav>
+    </div>
+</header>
