@@ -1,7 +1,9 @@
-// src/controllers/productsController.js
 import productsServices from '../services/productsServices.js';
 import { CustomError } from '../middleware/errorHandler.js';
+import { productModel as Product } from '../models/productsModel.js';
+import { userModel as User } from '../models/usersModel.js';
 
+// Obtener todos los productos
 export const getProductsController = async (req, res, next) => {
     try {
         const products = await productsServices.getProductsServices();
@@ -11,6 +13,7 @@ export const getProductsController = async (req, res, next) => {
     }
 };
 
+// Añadir un nuevo producto
 export const addProductController = async (req, res, next) => {
     const { title, price, ...rest } = req.body;
     if (!title || !price) {
@@ -24,6 +27,7 @@ export const addProductController = async (req, res, next) => {
     }
 };
 
+// Obtener producto por ID
 export const getProductsByIdController = async (req, res, next) => {
     const { pid } = req.params;
     try {
@@ -37,6 +41,7 @@ export const getProductsByIdController = async (req, res, next) => {
     }
 };
 
+// Eliminar producto por ID
 export const deleteProductsByIdController = async (req, res, next) => {
     const { pid } = req.params;
     try {
@@ -50,6 +55,7 @@ export const deleteProductsByIdController = async (req, res, next) => {
     }
 };
 
+// Modificar producto
 export const modificarProductsController = async (req, res, next) => {
     const { pid } = req.params;
     const { _id, ...rest } = req.body;
@@ -64,7 +70,20 @@ export const modificarProductsController = async (req, res, next) => {
     }
 };
 
+// Eliminar producto con restricciones de permisos
+export const deleteProduct = async (req, res) => {
+    const { id } = req.params;
+    const product = await Product.findById(id);
+    if (!product) return res.status(404).send('Product not found');
 
+    const user = await User.findById(req.user.id); // Asegúrate de que req.user contenga la información del usuario autenticado
+    if (user.role !== 'admin' && product.owner !== user.email) {
+        return res.status(403).send('You do not have permission to delete this product');
+    }
+
+    await Product.findByIdAndDelete(id);
+    res.status(200).send('Product deleted successfully');
+};
 
 
 
