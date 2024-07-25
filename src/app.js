@@ -18,10 +18,8 @@ import { dirname } from './utils.js';
 import { dbConnection } from './config/config.js';
 import { messageModel } from './models/messagesModel.js';
 import { addProductService, getProductsService } from './dao/productsMongo.js';
-import { initializaPassport } from './config/passport.js';
+import { initializePassport } from './config/passport.js'; // Importación corregida
 import { errorHandler } from './middleware/errorHandler.js';
-
-// Importar el logger
 import logger from './config/logger.js';
 
 const app = express();
@@ -49,7 +47,7 @@ app.use(session({
     saveUninitialized: false
 }));
 
-initializaPassport();
+initializePassport();
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -57,7 +55,6 @@ app.engine('handlebars', engine());
 app.set('views', path.join(dirname, 'views'));
 app.set('view engine', 'handlebars');
 
-// Middleware para loguear todas las solicitudes HTTP
 app.use((req, res, next) => {
     logger.http(`${req.method} ${req.url}`);
     next();
@@ -69,7 +66,6 @@ app.use('/api/carts', carts);
 app.use('/api/tickets', tickets);
 app.use('/api/auth', auth);
 
-// Endpoint de prueba
 app.get('/loggerTest', (req, res) => {
     logger.debug('Debug log');
     logger.http('HTTP log');
@@ -80,7 +76,6 @@ app.get('/loggerTest', (req, res) => {
     res.send('Logger test complete');
 });
 
-// Agregar el manejador de errores después de todas las rutas
 app.use(errorHandler);
 
 try {
@@ -123,6 +118,7 @@ try {
 } catch (error) {
     logger.error('Error connecting to the database:', error);
 }
+
 
 
 

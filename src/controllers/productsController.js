@@ -73,16 +73,23 @@ export const modificarProductsController = async (req, res, next) => {
 // Eliminar producto con restricciones de permisos
 export const deleteProduct = async (req, res) => {
     const { id } = req.params;
-    const product = await Product.findById(id);
-    if (!product) return res.status(404).send('Product not found');
+    try {
+        const product = await Product.findById(id);
+        if (!product) return res.status(404).json({ message: 'Product not found' });
 
-    const user = await User.findById(req.user.id); // Asegúrate de que req.user contenga la información del usuario autenticado
-    if (user.role !== 'admin' && product.owner !== user.email) {
-        return res.status(403).send('You do not have permission to delete this product');
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(401).json({ message: 'Unauthorized' });
+
+        if (user.role !== 'admin' && product.owner !== user.email) {
+            return res.status(403).json({ message: 'You do not have permission to delete this product' });
+        }
+
+        await Product.findByIdAndDelete(id);
+        res.status(200).json({ message: 'Product deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting product:', error);
+        res.status(500).json({ message: 'Internal Server Error', details: 'Error al eliminar producto' });
     }
-
-    await Product.findByIdAndDelete(id);
-    res.status(200).send('Product deleted successfully');
 };
 
 

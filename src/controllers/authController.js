@@ -1,11 +1,10 @@
 import { getUserByEmail } from '../dao/userMongo.js';
 import { isValidPassword } from '../utils/bcryptPassword.js';
 import jwt from 'jsonwebtoken';
-
-const crypto = require('crypto');
-const nodemailer = require('nodemailer');
-const User = require('../models/user.model');
-const bcrypt = require('bcryptjs');
+import crypto from 'crypto';
+import nodemailer from 'nodemailer';
+import { userModel as User } from '../models/usersModel.js';
+import bcrypt from 'bcryptjs';
 
 export const loginUser = async (req, res) => {
     const { email, password } = req.body;
@@ -24,7 +23,7 @@ export const loginUser = async (req, res) => {
     }
 };
 
-exports.forgotPassword = async (req, res) => {
+export const forgotPassword = async (req, res) => {
     const { email } = req.body;
     const user = await User.findOne({ email });
     if (!user) return res.status(404).send('User not found');
@@ -58,7 +57,7 @@ exports.forgotPassword = async (req, res) => {
     });
 };
 
-exports.resetPassword = async (req, res) => {
+export const resetPassword = async (req, res) => {
     const { token } = req.params;
     const { newPassword } = req.body;
     const user = await User.findOne({ resetPasswordToken: token, resetPasswordExpires: { $gt: Date.now() } });
