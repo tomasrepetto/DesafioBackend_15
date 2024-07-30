@@ -3,7 +3,6 @@ dotenv.config();
 
 import express from 'express';
 import { engine } from 'express-handlebars';
-import { Server } from 'socket.io';
 import path from 'path';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
@@ -16,8 +15,6 @@ import tickets from './routers/tickets.js';
 import auth from './routers/auth.js';
 import { dirname } from './utils.js';
 import { dbConnection } from './config/config.js';
-import { messageModel } from './models/messagesModel.js';
-import { addProductService, getProductsService } from './dao/productsMongo.js';
 import { initializePassport } from './config/passport.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import logger from './config/logger.js';
@@ -43,8 +40,9 @@ app.use(session({
         ttl: 3600
     }),
     secret: process.env.SESSION_SECRET,
-    resave: true,
-    saveUninitialized: false
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false }
 }));
 
 initializePassport();
@@ -90,38 +88,23 @@ try {
     const io = new Server(expressServer);
 
     io.on('connection', async (socket) => {
-        try {
-            const { payload } = await getProductsService({});
-            const productos = payload;
-            socket.emit('productos', payload);
-
-            socket.on('agregarProducto', async (producto) => {
-                const newProduct = await addProductService({ ...producto });
-                if (newProduct) {
-                    productos.push(newProduct);
-                    socket.emit('productos', producto);
-                }
-            });
-
-            const messages = await messageModel.find();
-            socket.emit('message', messages);
-
-            socket.on('message', async (data) => {
-                const newMessage = await messageModel.create({ ...data });
-                if (newMessage) {
-                    const messages = await messageModel.find();
-                    io.emit('messageLogs', messages);
-                }
-            });
-
-            socket.broadcast.emit('nuevo_user');
-        } catch (error) {
-            logger.error('Error handling socket connection:', error);
-        }
+        // Aquí manejamos las conexiones de socket.io
     });
 } catch (error) {
     logger.error('Error connecting to the database:', error);
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

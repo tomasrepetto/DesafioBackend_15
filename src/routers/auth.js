@@ -6,15 +6,33 @@ const router = Router();
 
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password/:token', resetPassword);
-router.post('/login', loginUser);
+router.post('/login', passport.authenticate('login', { failureRedirect: '/login' }), loginUser);
+
 router.get('/github', passport.authenticate('github', { scope: [ 'user:email' ] }));
+
 router.get('/github/callback', 
   passport.authenticate('github', { failureRedirect: '/' }),
   (req, res) => {
-    res.redirect('/'); // Redirigir a la página del perfil
-  });
+    console.log('GitHub callback - user:', req.user);
+    res.redirect('/'); // Redirigir a la página de inicio después de la autenticación exitosa
+  }
+);
 
 export default router;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

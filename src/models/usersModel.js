@@ -3,27 +3,43 @@ import mongoose from 'mongoose';
 const userSchema = new mongoose.Schema({
     githubId: {
         type: String,
-        required: false
+        required: false,
     },
     username: {
         type: String,
-        required: true
+        required: true,
     },
     email: {
         type: String,
-        required: false // Cambiar a false para permitir registros sin email
+        required: true,
+        unique: true,
     },
     password: {
         type: String,
-        required: false // Cambiar a false para permitir registros sin password
+        required: true,
     },
     rol: {
         type: String,
-        default: 'user'
+        required: false,
+        default: 'user',
+    },
+    resetPasswordToken: {
+        type: String,
+        required: false,
+    },
+    resetPasswordExpires: {
+        type: Date,
+        required: false,
     }
 });
 
 const User = mongoose.model('User', userSchema);
 
 export default User;
+
+
+
+
+
+
 

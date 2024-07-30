@@ -5,57 +5,70 @@ import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 import User from '../models/usersModel.js';
 import bcrypt from 'bcryptjs';
+import passport from 'passport';
 
 export const loginUser = async (req, res, next) => {
     passport.authenticate('login', (err, user, info) => {
         if (err) {
-        return next(err);
-        }
-        if (!user) {
-        return res.status(401).json({ message: 'Invalid credentials' });
-        }
-        req.logIn(user, (err) => {
-        if (err) {
             return next(err);
         }
-        const token = jwt.sign({ id: user._id, email: user.email, rol: user.rol }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        return res.status(200).json({ message: 'Login successful', token });
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+        req.logIn(user, (err) => {
+            if (err) {
+                return next(err);
+            }
+            const token = jwt.sign({ id: user._id, email: user.email, rol: user.rol }, process.env.JWT_SECRET, { expiresIn: '1h' });
+            return res.status(200).json({ message: 'Login successful', token });
         });
     })(req, res, next);
 };
 
 export const forgotPassword = async (req, res) => {
-    const { email } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) return res.status(404).send('User not found');
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email });
 
-    const token = crypto.randomBytes(20).toString('hex');
-    user.resetPasswordToken = token;
-    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
-    await user.save();
-
-    const transporter = nodemailer.createTransport({
-        service: 'Gmail',
-        auth: {
-        user: 'youremail@gmail.com',
-        pass: 'yourpassword'
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
         }
-    });
 
-    const mailOptions = {
-        to: user.email,
-        from: 'passwordreset@example.com',
-        subject: 'Password Reset',
-        text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
-        Please click on the following link, or paste this into your browser to complete the process:\n\n
-        http://${req.headers.host}/reset/${token}\n\n
-        If you did not request this, please ignore this email and your password will remain unchanged.\n`
-    };
+        const token = crypto.randomBytes(20).toString('hex');
+        user.resetPasswordToken = token;
+        user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
 
-    transporter.sendMail(mailOptions, (err) => {
-        if (err) return res.status(500).send('Error sending email');
-        res.status(200).send('An email has been sent to ' + user.email + ' with further instructions.');
-    });
+        await user.save();
+
+        const transporter = nodemailer.createTransport({
+            service: 'Gmail',
+            auth: {
+                user: 'youremail@gmail.com',
+                pass: 'yourpassword'
+            }
+        });
+
+        const mailOptions = {
+            to: user.email,
+            from: 'passwordreset@example.com',
+            subject: 'Password Reset',
+            text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
+            Please click on the following link, or paste this into your browser to complete the process:\n\n
+            http://${req.headers.host}/reset/${token}\n\n
+            If you did not request this, please ignore this email and your password will remain unchanged.\n`
+        };
+
+        transporter.sendMail(mailOptions, (err) => {
+            if (err) {
+                console.error('Error sending email:', err);
+                return res.status(500).json({ message: 'Error sending email' });
+            }
+            res.status(200).json({ message: 'An email has been sent to ' + user.email + ' with further instructions.' });
+        });
+    } catch (error) {
+        console.error('Error processing forgot password request:', error);
+        res.status(500).json({ message: 'Error processing forgot password request' });
+    }
 };
 
 export const resetPassword = async (req, res) => {
@@ -73,6 +86,11 @@ export const resetPassword = async (req, res) => {
     await user.save();
     res.status(200).send('Password has been reset successfully.');
 };
+
+
+
+
+
 
 
 
