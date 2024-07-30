@@ -7,6 +7,7 @@ import path from 'path';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import passport from 'passport';
+import { Server } from 'socket.io';
 
 import products from './routers/products.js';
 import carts from './routers/carts.js';
@@ -93,6 +94,7 @@ try {
 } catch (error) {
     logger.error('Error connecting to the database:', error);
 }
+
 
 
 

@@ -28,10 +28,18 @@ export const loginUser = async (req, res, next) => {
 export const forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
+        console.log('Email received for forgot password:', email);
         const user = await User.findOne({ email });
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
+        }
+        
+        console.log('User found:', user);
+
+        // Verifica si el usuario tiene el campo username, si no, lo establece
+        if (!user.username) {
+            user.username = email.split('@')[0]; // Asignar el nombre de usuario basado en el correo electrónico
         }
 
         const token = crypto.randomBytes(20).toString('hex');
@@ -43,8 +51,8 @@ export const forgotPassword = async (req, res) => {
         const transporter = nodemailer.createTransport({
             service: 'Gmail',
             auth: {
-                user: 'youremail@gmail.com',
-                pass: 'yourpassword'
+                user: 'youremail@gmail.com', // Cambia esto a tu correo electrónico
+                pass: 'yourpassword' // Cambia esto a tu contraseña de aplicación o contraseña
             }
         });
 
@@ -86,6 +94,11 @@ export const resetPassword = async (req, res) => {
     await user.save();
     res.status(200).send('Password has been reset successfully.');
 };
+
+
+
+
+
 
 
 

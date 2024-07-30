@@ -28,7 +28,7 @@ passport.use(new GitHubStrategy({
           githubId: profile.id,
           username: profile.username || profile.displayName || profile._json.login,
           email: profile.emails && profile.emails[0].value ? profile.emails[0].value : `${profile.username}@github.com`,
-          password: '' // Dejar el campo password vacío
+          password: ' ', // Dejar el campo password vacío
         });
         await user.save();
       }
@@ -70,10 +70,13 @@ passport.deserializeUser(async (id, done) => {
 });
 
 const initializePassport = () => {
-  // Estrategias ya definidas anteriormente
+  passport.initialize();
+  passport.session();
 };
 
 export { initializePassport };
+
+
 
 
 
