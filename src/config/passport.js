@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import passport from 'passport';
 import { Strategy as GitHubStrategy } from 'passport-github2';
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
@@ -65,6 +68,10 @@ export const initializePassport = () => {
     }
   });
 };
+
+
+
+
 
 
 

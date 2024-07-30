@@ -3,7 +3,7 @@ import { isValidPassword } from '../utils/bcryptPassword.js';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
-import User from '../models/usersModel.js'; // Corrección aquí
+import User from '../models/usersModel.js';
 import bcrypt from 'bcryptjs';
 
 export const loginUser = async (req, res) => {
@@ -72,4 +72,6 @@ export const resetPassword = async (req, res) => {
     await user.save();
     res.status(200).send('Password has been reset successfully.');
 };
+
+
 
