@@ -4,7 +4,9 @@ dotenv.config();
 import passport from 'passport';
 import { Strategy as GitHubStrategy } from 'passport-github2';
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
+import { Strategy as LocalStrategy } from 'passport-local';
 import User from '../models/usersModel.js';
+import { isValidPassword } from '../utils/bcryptPassword.js';
 
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
@@ -26,7 +28,8 @@ passport.use(new GitHubStrategy({
         user = new User({
           githubId: profile.id,
           username: profile.username,
-          email: profile._json.email
+          email: profile.emails && profile.emails[0].value ? profile.emails[0].value : `${profile.username}@github.com`,
+          password: '' // Dejar el campo password vacío
         });
         await user.save();
       }
@@ -54,6 +57,23 @@ passport.use(new JwtStrategy({
   }
 ));
 
+passport.use('login', new LocalStrategy({
+    usernameField: 'email',
+    passwordField: 'password'
+  },
+  async (email, password, done) => {
+    try {
+      const user = await User.findOne({ email });
+      if (!user || !isValidPassword(password, user.password)) {
+        return done(null, false, { message: 'Invalid credentials' });
+      }
+      return done(null, user);
+    } catch (err) {
+      return done(err);
+    }
+  }
+));
+
 export const initializePassport = () => {
   passport.serializeUser((user, done) => {
     done(null, user.id);
@@ -68,6 +88,9 @@ export const initializePassport = () => {
     }
   });
 };
+
+
+
 
 
 

@@ -10,11 +10,14 @@ router.post('/login', loginUser);
 router.get('/github', passport.authenticate('github', { scope: [ 'user:email' ] }));
 router.get('/github/callback', 
   passport.authenticate('github', { failureRedirect: '/' }),
-  function(req, res) {
-    res.redirect('/');
+  (req, res) => {
+    res.redirect('/'); // Redirigir a la página del perfil
   });
 
 export default router;
+
+
+
 
 
 
