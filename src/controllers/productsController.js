@@ -1,7 +1,7 @@
 import productsServices from '../services/productsServices.js';
 import { CustomError } from '../middleware/errorHandler.js';
 import { productModel as Product } from '../models/productsModel.js';
-import { userModel as User } from '../models/usersModel.js';
+import User from '../models/usersModel.js'; // Corrección aquí
 
 // Obtener todos los productos
 export const getProductsController = async (req, res, next) => {
@@ -19,6 +19,11 @@ export const addProductController = async (req, res, next) => {
     if (!title || !price) {
         return next(new CustomError('MissingFieldsError', 'Todos los campos son requeridos'));
     }
+
+    if (req.user.rol !== 'premium') {
+        return res.status(403).json({ message: 'No tienes permisos para añadir productos' });
+    }
+
     try {
         const product = await productsServices.addProductService({ title, price, ...rest });
         res.status(201).json(product);
@@ -91,6 +96,8 @@ export const deleteProduct = async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error', details: 'Error al eliminar producto' });
     }
 };
+
+
 
 
 

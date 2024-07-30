@@ -1,6 +1,6 @@
 import { ticketModel } from '../models/ticketModel.js';
 import { cartModel } from '../models/cartsModel.js';
-import { userModel } from '../models/usersModel.js';
+import User from '../models/usersModel.js';
 import { v4 as uuidv4 } from 'uuid';
 
 export const createTicket = async (req, res) => {

@@ -18,7 +18,7 @@ import { dirname } from './utils.js';
 import { dbConnection } from './config/config.js';
 import { messageModel } from './models/messagesModel.js';
 import { addProductService, getProductsService } from './dao/productsMongo.js';
-import { initializePassport } from './config/passport.js'; // Importación corregida
+import { initializePassport } from './config/passport.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import logger from './config/logger.js';
 
@@ -76,6 +76,10 @@ app.get('/loggerTest', (req, res) => {
     res.send('Logger test complete');
 });
 
+app.get('/reset/:token', (req, res) => {
+  res.render('resetPassword', { token: req.params.token });
+});
+
 app.use(errorHandler);
 
 try {
@@ -118,13 +122,5 @@ try {
 } catch (error) {
     logger.error('Error connecting to the database:', error);
 }
-
-
-
-
-
-
-
-
 
 

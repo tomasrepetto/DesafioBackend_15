@@ -3,20 +3,20 @@ import { isValidPassword } from '../utils/bcryptPassword.js';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
-import { userModel as User } from '../models/usersModel.js';
+import User from '../models/usersModel.js'; // Corrección aquí
 import bcrypt from 'bcryptjs';
 
 export const loginUser = async (req, res) => {
     const { email, password } = req.body;
-    
+
     try {
         const user = await getUserByEmail(email);
         if (!user || !isValidPassword(password, user.password)) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
-        
+
         const token = jwt.sign({ id: user._id, email: user.email, rol: user.rol }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        
+
         return res.status(200).json({ message: 'Login successful', token });
     } catch (error) {
         return res.status(500).json({ message: 'Internal server error', error: error.message });
@@ -72,3 +72,4 @@ export const resetPassword = async (req, res) => {
     await user.save();
     res.status(200).send('Password has been reset successfully.');
 };
+
