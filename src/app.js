@@ -50,6 +50,17 @@ initializePassport();
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use((req, res, next) => {
+    console.log('Checking user in middleware');
+    if (req.user) {
+        console.log('Middleware - Authenticated User:', req.user);
+    } else {
+        console.log('Middleware - No user');
+    }
+    res.locals.user = req.user || null;
+    next();
+});
+
 app.engine('handlebars', engine());
 app.set('views', path.join(dirname, 'views'));
 app.set('view engine', 'handlebars');
@@ -76,7 +87,7 @@ app.get('/loggerTest', (req, res) => {
 });
 
 app.get('/reset/:token', (req, res) => {
-  res.render('resetPassword', { token: req.params.token });
+    res.render('resetPassword', { token: req.params.token });
 });
 
 app.use(errorHandler);
@@ -94,6 +105,10 @@ try {
 } catch (error) {
     logger.error('Error connecting to the database:', error);
 }
+
+
+
+
 
 
 

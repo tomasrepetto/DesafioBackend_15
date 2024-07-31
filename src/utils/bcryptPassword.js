@@ -1,13 +1,19 @@
-import bcrypjs from 'bcrypt';
+import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 
-export const createHash = (password) => {
-    const salt = bcrypjs.genSaltSync(10);
-    const passHash = bcrypjs.hashSync(password, salt);
-    return passHash;
+export const hashPassword = (password) => {
+    return bcrypt.hashSync(password, bcrypt.genSaltSync(10));
 };
 
-export const isValidPassword = (password, userPassword) => {
-    const passValid = bcrypjs.compareSync(password, userPassword);
-    return passValid;
+export const isValidPassword = (password, hashedPassword) => {
+    return bcrypt.compareSync(password, hashedPassword);
 };
+
+export const generateResetToken = () => {
+    const token = crypto.randomBytes(20).toString('hex');
+    const expires = Date.now() + 3600000; // 1 hour
+    return { token, expires };
+};
+
+
 
